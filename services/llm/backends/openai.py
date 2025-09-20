@@ -9,8 +9,8 @@ from typing import Any, AsyncGenerator
 import httpx
 from model import ChatMessageContent, LlmServiceChatRequest
 
-from ..prompt.messages import build_llm_payload_messages
-from ..tools.rag import fetch_rag_code_snippets
+from services.llm.prompt.messages import build_llm_payload_messages
+from services.llm.tools.rag import fetch_rag_code_snippets
 
 logger = logging.getLogger(__name__)
 

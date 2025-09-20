@@ -5,8 +5,8 @@ from typing import Iterator, List, Tuple
 from PIL import Image
 from pydantic import BaseModel
 
-from uiautodev.command_types import CurrentAppResponse
-from uiautodev.model import AppInfo, Node, ShellResponse, WindowSize
+from command_types import CurrentAppResponse
+from model import AppInfo, Node, ShellResponse, WindowSize
 
 
 class BaseDriver(abc.ABC):

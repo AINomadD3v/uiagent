@@ -2,7 +2,7 @@ import json
 import os
 from typing import Any, Dict, List, Optional
 
-from uiautodev.model import ChatMessageContent
+from model import ChatMessageContent
 
 
 def load_system_prompt() -> str:

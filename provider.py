@@ -5,10 +5,10 @@ from functools import lru_cache
 
 import adbutils
 
-from uiautodev.driver.android import AndroidDriver
-from uiautodev.driver.base_driver import BaseDriver
-from uiautodev.exceptions import UiautoException
-from uiautodev.model import DeviceInfo
+from driver.android import AndroidDriver
+from driver.base_driver import BaseDriver
+from exceptions import UiautoException
+from model import DeviceInfo
 
 
 class BaseProvider(abc.ABC):

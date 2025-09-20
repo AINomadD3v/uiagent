@@ -33,10 +33,10 @@
 	// ─── Component State ─────────────────────────────────────────────────────────────────────────
 
 	/** The active tab in the middle panel ('assistant' or 'details'). */
-	let midTab: 'assistant' | 'details' = 'assistant';
+	let midTab: 'assistant' | 'details' = 'details';
 
 	/** The active tab in the right panel ('python' or 'hierarchy'). */
-	let rightTab: 'python' | 'hierarchy' = 'python';
+	let rightTab: 'python' | 'hierarchy' = 'hierarchy';
 
 	/** The search term entered by the user for filtering the UI hierarchy. */
 	let hierarchySearchTerm = '';
@@ -206,30 +206,8 @@
 		return `//${$node.name}`;
 	});
 
-	// ─── Legacy Integration ──────────────────────────────────────────────────────────────────────
-	let getAppVariables = () => ({});
-	let callBackend: any = () => Promise.resolve();
-	let legacyUpdateMessage: any = updateMessage; // Use our new notification system
-	let PythonConsoleManager = { init: () => {}, refresh: () => {} };
-	let escapeHtml = (s: string) => s;
-	let openGlobalTab = (_evt: any, _name: string) => {};
 
 	onMount(() => {
-		if ((window as any).getAppVariablesForLlm)
-			getAppVariables = (window as any).getAppVariablesForLlm;
-		if ((window as any).callBackend) callBackend = (window as any).callBackend;
-		// Use our new notification system for legacy compatibility
-		legacyUpdateMessage = updateMessage;
-		if ((window as any).PythonConsoleManager)
-			PythonConsoleManager = (window as any).PythonConsoleManager;
-		if ((window as any).escapeHtml) escapeHtml = (window as any).escapeHtml;
-		if ((window as any).openGlobalTab) openGlobalTab = (window as any).openGlobalTab;
-
-		// Make notification system globally available for legacy code
-		(window as any).updateMessage = updateMessage;
-		(window as any).updateGlobalMessage = updateMessage;
-		(window as any).notificationStore = notificationStore;
-
 		// Initialize panel states if they don't exist
 		if (!panelActions.getPanel('left-panel')) {
 			panelActions.updateDimensions('left-panel', { width: 350, minWidth: 300, maxWidth: 500 });
@@ -576,29 +554,22 @@
 			<div class="tabs">
 				<button
 					class="tab-button"
-					class:active={midTab === 'assistant'}
-					on:click={() => (midTab = 'assistant')}
-				>
-					LLM Assistant
-				</button>
-				<button
-					class="tab-button"
 					class:active={midTab === 'details'}
 					on:click={() => (midTab = 'details')}
 				>
 					Element Details
 				</button>
+				<button
+					class="tab-button"
+					class:active={midTab === 'assistant'}
+					on:click={() => (midTab = 'assistant')}
+				>
+					LLM Assistant
+				</button>
 			</div>
 			<div class="panel-content">
 				{#if midTab === 'assistant'}
-					<LLMAssistant
-						{getAppVariables}
-						{callBackend}
-						updateMessage={legacyUpdateMessage}
-						{PythonConsoleManager}
-						{escapeHtml}
-						{openGlobalTab}
-					/>
+					<LLMAssistant />
 				{:else}
 					<PropertiesPanel generatedXPath={$generatedXPath} selectedNode={$selectedNode} />
 				{/if}
@@ -609,17 +580,17 @@
 			<div class="tabs">
 				<button
 					class="tab-button"
-					class:active={rightTab === 'python'}
-					on:click={() => (rightTab = 'python')}
-				>
-					Python Console
-				</button>
-				<button
-					class="tab-button"
 					class:active={rightTab === 'hierarchy'}
 					on:click={() => (rightTab = 'hierarchy')}
 				>
 					UI Hierarchy
+				</button>
+				<button
+					class="tab-button"
+					class:active={rightTab === 'python'}
+					on:click={() => (rightTab = 'python')}
+				>
+					Python Console
 				</button>
 			</div>
 			<div class="panel-content">

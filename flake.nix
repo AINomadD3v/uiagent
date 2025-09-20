@@ -214,13 +214,9 @@
                     # Optional: Clear the screen for a cleaner start (remove if you don't like this)
             # clear
 
-            # Add project source directory to PYTHONPATH for local imports only if it exists
-            if [ -d "./uiautodev" ]; then
-              export PYTHONPATH="./uiautodev:$PYTHONPATH"
-              __uiautodev_path_added=1
-            else
-              __uiautodev_path_added=0
-            fi
+            # Add current directory to PYTHONPATH for local imports
+            export PYTHONPATH=".:$PYTHONPATH"
+            __uiautodev_path_added=1
 
             echo ""
             echo "=================================================="
@@ -234,18 +230,14 @@
             echo "  Poetry: $(which poetry || echo 'Not found in PATH')"
             echo ""
 
-            # Report if PYTHONPATH was modified
+            # Report PYTHONPATH setup
             echo "Project Setup:"
-            if [ $__uiautodev_path_added -eq 1 ]; then
-              echo "  PYTHONPATH includes ./uiautodev"
-            else
-              echo "  Note: ./uiautodev directory not found, not added to PYTHONPATH."
-            fi
+            echo "  PYTHONPATH includes current directory (flattened structure)"
             unset __uiautodev_path_added # Clean up temporary variable
             echo ""
 
             echo "To run the uiautodev server:"
-            echo "  uvicorn uiautodev.app:app --host 127.0.0.1 --port 20242 --reload"
+            echo "  uvicorn app:app --host 127.0.0.1 --port 20242 --reload"
             echo ""
             echo "Access the server at: http://127.0.0.1:20242"
             echo ""

@@ -9,10 +9,10 @@ import adbutils
 import uiautomator2 as u2
 from PIL import Image
 
-from uiautodev.command_types import CurrentAppResponse
-from uiautodev.driver.base_driver import BaseDriver
-from uiautodev.exceptions import AndroidDriverException
-from uiautodev.model import AppInfo, Node, Rect, ShellResponse, WindowSize
+from command_types import CurrentAppResponse
+from driver.base_driver import BaseDriver
+from exceptions import AndroidDriverException
+from model import AppInfo, Node, Rect, ShellResponse, WindowSize
 
 logger = logging.getLogger(__name__)
 

@@ -14,18 +14,16 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, Request, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import (
-    FileResponse,
     JSONResponse,
     RedirectResponse,
     StreamingResponse,
 )
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from uiautodev.model import ChatMessageContent
+from model import ChatMessageContent
 
 # --- Early .env loading and diagnostics ---
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent
 DOTENV_PATH = PROJECT_ROOT / ".env"
 
 if DOTENV_PATH.exists():
@@ -45,13 +43,13 @@ if not DOTENV_PATH.exists():
     )
 # --- End of early .env loading ---
 
-from uiautodev import __version__
-from uiautodev.common import convert_bytes_to_image, ocr_image
-from uiautodev.model import ChatMessageContent as LlmServiceChatMessage
-from uiautodev.model import Node
-from uiautodev.provider import AndroidProvider
-from uiautodev.router.device import make_router
-from uiautodev.services.llm_service import (
+from __init__ import __version__
+from common import convert_bytes_to_image, ocr_image
+from model import ChatMessageContent as LlmServiceChatMessage
+from model import Node
+from provider import AndroidProvider
+from router.device import make_router
+from services.llm_service import (
     LlmServiceChatRequest,
     generate_chat_completion_stream,
 )
@@ -67,15 +65,6 @@ app = FastAPI(
 ACTIVE_PROCESSES: Dict[str, int] = {}
 
 
-# --- Static Files Mounting ---
-current_file_dir = Path(__file__).parent
-static_files_path = current_file_dir / "static"
-if static_files_path.is_dir():
-    app.mount("/static", StaticFiles(directory=static_files_path), name="static")
-else:
-    logger.error(
-        f"Static files directory not found at: {static_files_path}. UI may not load correctly."
-    )
 
 # --- Middleware ---
 app.add_middleware(
@@ -305,22 +294,9 @@ def shutdown_server() -> JSONResponse:
     return JSONResponse(content={"message": "Server shutting down..."})
 
 
-@app.get("/demo", summary="Serve Local Inspector UI", include_in_schema=True)
-async def serve_local_inspector_ui():
-    ui_html_file = static_files_path / "demo.html"
-    if not ui_html_file.is_file():
-        logger.error(f"UI HTML file not found: {ui_html_file}")
-        return JSONResponse(content={"error": "UI HTML not found."}, status_code=404)
-    return FileResponse(ui_html_file)
-
-
-@app.get("/", summary="Redirect to Local Inspector UI", include_in_schema=False)
-async def redirect_to_local_ui():
-    try:
-        local_ui_url = app.url_path_for("serve_local_inspector_ui")
-    except Exception:
-        local_ui_url = "/demo"
-    return RedirectResponse(url=local_ui_url)
+@app.get("/", summary="API Documentation", include_in_schema=False)
+async def redirect_to_docs():
+    return RedirectResponse(url="/docs")
 
 
 # --- Main Entry Point for Uvicorn ---

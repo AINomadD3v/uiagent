@@ -99,11 +99,6 @@
 	function handleOutputResize() {
 		// Trigger any necessary layout recalculations
 		// This could include refreshing the code editor if needed
-		if (browser && (window as any).PythonConsoleManager?.refresh) {
-			setTimeout(() => {
-				(window as any).PythonConsoleManager.refresh();
-			}, 50);
-		}
 	}
 
 	// ─── Lifecycle ──────────────────────────────────────────────────────────

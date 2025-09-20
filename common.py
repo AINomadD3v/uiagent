@@ -5,7 +5,7 @@ from typing import List
 
 from PIL import Image
 
-from uiautodev.model import OCRNode
+from model import OCRNode
 
 logger = logging.getLogger(__name__)
 

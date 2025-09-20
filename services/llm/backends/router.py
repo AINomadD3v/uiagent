@@ -1,6 +1,6 @@
 from typing import AsyncGenerator
 
-from uiautodev.model import LlmServiceChatRequest
+from model import LlmServiceChatRequest
 
 from . import deepseek, openai  # 👈 relative import
 

@@ -8,8 +8,8 @@ from fastapi import APIRouter, Body, HTTPException, Path
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 from pydantic import BaseModel
 
-from uiautodev import command_proxy
-from uiautodev.command_types import (
+import command_proxy
+from command_types import (
     Command,
     CurrentAppResponse,
     InstallAppRequest,
@@ -17,10 +17,10 @@ from uiautodev.command_types import (
     InteractiveCodePayload,
     TapRequest,
 )
-from uiautodev.driver.android import AndroidDriver
-from uiautodev.model import DeviceInfo, Node, ShellResponse
-from uiautodev.provider import BaseProvider
-from uiautodev.utils.interactive_executor import execute_interactive_code
+from driver.android import AndroidDriver
+from model import DeviceInfo, Node, ShellResponse
+from provider import BaseProvider
+from utils.interactive_executor import execute_interactive_code
 
 logger = logging.getLogger(__name__)
 

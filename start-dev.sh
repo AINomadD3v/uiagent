@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # UIAutodev Development Server Starter
 # Starts both frontend and backend servers in parallel
@@ -21,7 +21,7 @@ trap cleanup SIGINT SIGTERM
 
 # Start backend server
 echo "🔧 Starting backend server (port 20242)..."
-nix develop --command uvicorn uiautodev.app:app --host 127.0.0.1 --port 20242 --reload &
+nix develop --command uvicorn app:app --host 127.0.0.1 --port 20242 --reload &
 BACKEND_PID=$!
 
 # Wait a moment for backend to start
@@ -29,10 +29,10 @@ sleep 2
 
 # Start frontend server
 echo "🎨 Starting frontend server (port 5173)..."
-cd uiautodev/frontend
+cd frontend
 nix develop --command npm run dev &
 FRONTEND_PID=$!
-cd ../..
+cd ..
 
 # Wait for servers to initialize
 sleep 3

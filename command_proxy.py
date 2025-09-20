@@ -6,7 +6,7 @@ from typing import Callable, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
-from uiautodev.command_types import (
+from command_types import (
     AppLaunchRequest,
     AppTerminateRequest,
     By,
@@ -20,10 +20,10 @@ from uiautodev.command_types import (
     TapRequest,
     WindowSizeResponse,
 )
-from uiautodev.driver.base_driver import BaseDriver
-from uiautodev.exceptions import ElementNotFoundError
-from uiautodev.model import AppInfo, Node
-from uiautodev.utils.common import node_travel
+from driver.base_driver import BaseDriver
+from exceptions import ElementNotFoundError
+from model import AppInfo, Node
+from utils.common import node_travel
 
 COMMANDS: Dict[Command, Callable] = {}
 

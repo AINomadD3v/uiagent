@@ -14,8 +14,8 @@ from typing import List, Optional, TypeVar, Union
 from pydantic import BaseModel
 from pygments import formatters, highlight, lexers
 
-from uiautodev.exceptions import RequestError
-from uiautodev.model import Node
+from exceptions import RequestError
+from model import Node
 
 
 def is_output_terminal() -> bool:
