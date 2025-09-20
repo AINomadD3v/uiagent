@@ -10,8 +10,10 @@
 	import { vim } from '@replit/codemirror-vim';
 	import { oneDark } from '@codemirror/theme-one-dark';
 	import { defaultKeymap, history, indentWithTab } from '@codemirror/commands';
-	import { autocompletion } from '@codemirror/autocomplete';
 	import { bracketMatching } from '@codemirror/language';
+
+	// ─── PYTHON AUTOCOMPLETION ─────────────────────────────────────────────────────────────────
+	import { pythonAutocompletion, cleanupPythonCompletion } from './PythonAutocompletion';
 
 	// ─── SVELTE STORE IMPORT ────────────────────────────────────────────────────────────────────
 	import { pythonConsoleStore, type ReplaceActionPayload } from '$lib/stores/pythonConsole';
@@ -49,12 +51,17 @@
 			history(),
 			bracketMatching(),
 			highlightActiveLine(),
-			autocompletion(),
 			python(),
 			oneDark,
 			vim(),
 			keymap.of([...defaultKeymap, indentWithTab]),
-			updateListener
+			updateListener,
+			// Advanced Python autocompletion with backend integration
+			pythonAutocompletion({
+				debounceMs: 300,
+				enableAutoTrigger: true,
+				enableDotTrigger: true
+			})
 		];
 
 		const initialCode = get(pythonConsoleStore).code;
@@ -132,6 +139,8 @@
 		if (view) {
 			view.destroy();
 		}
+		// Clean up completion resources
+		cleanupPythonCompletion();
 	});
 </script>
 

@@ -13,6 +13,8 @@
 		hierarchyError,
 		refreshHierarchy
 	} from '$lib/stores/hierarchy';
+	import { notificationStore, updateMessage } from '$lib/stores/notifications'; // ✅ Import the notification system
+	import { panelActions, leftPanel, middlePanel, hierarchyPanel } from '$lib/stores/panelState'; // ✅ Import panel state management
 
 	// ─── Components ──────────────────────────────────────────────────────────────────────────────
 	import DeviceSelectorPanel from '$lib/components/DeviceSelectorPanel.svelte';
@@ -20,8 +22,13 @@
 	import LLMAssistant from '$lib/components/LLMAssistant.svelte';
 	import PropertiesPanel from '$lib/components/PropertiesPanel.svelte';
 	import PythonConsole from '$lib/components/PythonConsole.svelte';
+	import PythonConsoleWithOutput from '$lib/components/PythonConsoleWithOutput.svelte';
 	import HierarchyTree from '$lib/components/HierarchyTree.svelte';
 	import ConsoleOutput from '$lib/components/ConsoleOutput.svelte'; // ✅ Import the new floating console
+	import NotificationContainer from '$lib/components/NotificationContainer.svelte'; // ✅ Import the notification system
+	import MultiSelectToggle from '$lib/components/MultiSelectToggle.svelte';
+	import SelectedElementsList from '$lib/components/SelectedElementsList.svelte';
+	import DeviceControls from '$lib/components/DeviceControls.svelte';
 
 	// ─── Component State ─────────────────────────────────────────────────────────────────────────
 
@@ -40,8 +47,20 @@
 	/** An array of node keys that match the current search term. */
 	let searchMatches: string[] = [];
 
+	// DeviceScreenshot component references
+	let deviceScreenshotComponent: any;
+	let deviceInteractionMode: 'navigate' | 'select' = 'select';
+	let deviceIsRefreshing = false;
+
 	/** The index of the currently highlighted search match. */
 	let currentMatchIndex = -1;
+
+	// Device control handlers
+	async function handleDeviceRefresh() {
+		if (deviceScreenshotComponent && deviceScreenshotComponent.handleRefresh) {
+			await deviceScreenshotComponent.handleRefresh();
+		}
+	}
 
 	// ─── Logic ───────────────────────────────────────────────────────────────────────────────────
 
@@ -190,7 +209,7 @@
 	// ─── Legacy Integration ──────────────────────────────────────────────────────────────────────
 	let getAppVariables = () => ({});
 	let callBackend: any = () => Promise.resolve();
-	let updateMessage: any = () => {};
+	let legacyUpdateMessage: any = updateMessage; // Use our new notification system
 	let PythonConsoleManager = { init: () => {}, refresh: () => {} };
 	let escapeHtml = (s: string) => s;
 	let openGlobalTab = (_evt: any, _name: string) => {};
@@ -199,11 +218,28 @@
 		if ((window as any).getAppVariablesForLlm)
 			getAppVariables = (window as any).getAppVariablesForLlm;
 		if ((window as any).callBackend) callBackend = (window as any).callBackend;
-		if ((window as any).updateMessage) updateMessage = (window as any).updateMessage;
+		// Use our new notification system for legacy compatibility
+		legacyUpdateMessage = updateMessage;
 		if ((window as any).PythonConsoleManager)
 			PythonConsoleManager = (window as any).PythonConsoleManager;
 		if ((window as any).escapeHtml) escapeHtml = (window as any).escapeHtml;
 		if ((window as any).openGlobalTab) openGlobalTab = (window as any).openGlobalTab;
+
+		// Make notification system globally available for legacy code
+		(window as any).updateMessage = updateMessage;
+		(window as any).updateGlobalMessage = updateMessage;
+		(window as any).notificationStore = notificationStore;
+
+		// Initialize panel states if they don't exist
+		if (!panelActions.getPanel('left-panel')) {
+			panelActions.updateDimensions('left-panel', { width: 350, minWidth: 300, maxWidth: 500 });
+		}
+		if (!panelActions.getPanel('middle-panel')) {
+			panelActions.updateDimensions('middle-panel', { width: 400, minWidth: 300 });
+		}
+		if (!panelActions.getPanel('hierarchy-panel')) {
+			panelActions.updateDimensions('hierarchy-panel', { width: 350, minWidth: 250, maxWidth: 600 });
+		}
 	});
 </script>
 
@@ -232,6 +268,11 @@
 		overflow: hidden;
 	}
 
+	/* Allow horizontal scrolling when hierarchy tab is active */
+	.layout.hierarchy-active {
+		overflow: visible;
+	}
+
 	.panel {
 		background: #1e1e1e;
 		border-radius: 8px;
@@ -253,7 +294,7 @@
 	}
 
 	.panel-content {
-		flex: 1;
+		flex: 1 1 0;
 		display: flex;
 		flex-direction: column;
 		min-height: 0;
@@ -261,29 +302,35 @@
 	}
 
 	.left-panel {
-		flex: 0 0 30%;
-		min-width: 300px;
-		max-width: 420px;
+		flex: 1 1 0;
+		min-width: var(--left-panel-min-width, 280px);
+		max-width: var(--left-panel-max-width, 400px);
+		transition: flex-basis 0.2s ease;
 	}
 
 	.screenshot-wrapper {
-		flex: 1;
+		flex: 1 1 0;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		background: #000;
 		padding: 0.5rem;
 		min-height: 0;
+		overflow: hidden;
 	}
 
 	.middle-panel {
-		flex: 0 0 35%;
-		min-width: 300px;
+		flex: 1 1 0;
+		min-width: var(--middle-panel-min-width, 280px);
+		max-width: var(--middle-panel-max-width, none);
+		transition: flex-basis 0.2s ease;
 	}
 
 	.right-panel {
-		flex: 1;
-		min-width: 250px;
+		flex: 1 1 0;
+		min-width: var(--right-panel-min-width, 240px);
+		max-width: var(--right-panel-max-width, none);
+		transition: min-width 0.2s ease;
 	}
 
 	.tabs {
@@ -323,6 +370,15 @@
 
 	.right-panel .panel-content {
 		padding: 0;
+	}
+
+	/* Allow horizontal scrolling for hierarchy tab specifically */
+	.right-panel.hierarchy-active {
+		min-width: 0;
+	}
+
+	.right-panel.hierarchy-active .panel-content {
+		overflow: visible;
 	}
 
 	.hierarchy-controls {
@@ -375,14 +431,122 @@
 
 	.tree-wrapper {
 		flex-grow: 1;
-		overflow: auto;
+		overflow-x: auto; /* Only horizontal scrolling */
+		overflow-y: auto; /* Vertical scrolling */
 		scrollbar-width: thin;
 		scrollbar-color: #555 #2a2a2a;
+		min-width: 0; /* Allow shrinking below content width */
+		width: 100%; /* Take full container width */
+		padding-left: 0.5rem; /* Move padding here from inline style */
+	}
+
+	.tree-wrapper ul {
+		min-width: max-content; /* Ensure content determines width */
+		width: fit-content; /* Allow tree to extend beyond container */
+		padding-left: 0; /* Remove default ul padding */
+	}
+
+	.multi-select-controls {
+		padding: 0.5rem;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		align-items: center;
+		border-top: 1px solid #333;
+		background: #1a1a1a;
+		flex-shrink: 0;
+	}
+
+	/* Responsive Design - Tablet and smaller screens */
+	@media (max-width: 1200px) {
+		.left-panel {
+			min-width: 240px;
+			max-width: 320px;
+		}
+
+		.middle-panel {
+			min-width: 240px;
+		}
+
+		.right-panel {
+			min-width: 200px;
+		}
+
+		.layout {
+			gap: 0.25rem;
+		}
+	}
+
+	@media (max-width: 900px) {
+		.left-panel {
+			min-width: 200px;
+			max-width: 280px;
+		}
+
+		.middle-panel {
+			min-width: 200px;
+		}
+
+		.right-panel {
+			min-width: 180px;
+		}
+
+		.panel-title {
+			padding: 0.4rem 0.75rem;
+			font-size: 0.85rem;
+		}
+
+		.layout {
+			gap: 0.25rem;
+			padding: 0.25rem;
+		}
+	}
+
+	@media (max-width: 768px) {
+		.layout {
+			flex-direction: column;
+			gap: 0.5rem;
+		}
+
+		.left-panel,
+		.middle-panel,
+		.right-panel {
+			flex: none;
+			min-width: 100%;
+			max-width: 100%;
+		}
+
+		.left-panel {
+			order: 1;
+			min-height: 300px;
+		}
+
+		.middle-panel {
+			order: 2;
+			min-height: 400px;
+		}
+
+		.right-panel {
+			order: 3;
+			min-height: 300px;
+		}
 	}
 </style>
 
 <main>
-	<div class="layout">
+	<div
+		class="layout"
+		class:hierarchy-active={rightTab === 'hierarchy'}
+		style="
+			--left-panel-width: {$leftPanel?.dimensions?.width ? $leftPanel.dimensions.width + 'px' : '30%'};
+			--left-panel-min-width: {$leftPanel?.dimensions?.minWidth ? $leftPanel.dimensions.minWidth + 'px' : '300px'};
+			--left-panel-max-width: {$leftPanel?.dimensions?.maxWidth ? $leftPanel.dimensions.maxWidth + 'px' : '500px'};
+			--middle-panel-width: {$middlePanel?.dimensions?.width ? $middlePanel.dimensions.width + 'px' : '35%'};
+			--middle-panel-min-width: {$middlePanel?.dimensions?.minWidth ? $middlePanel.dimensions.minWidth + 'px' : '300px'};
+			--right-panel-min-width: {$hierarchyPanel?.dimensions?.minWidth ? $hierarchyPanel.dimensions.minWidth + 'px' : '250px'};
+			--right-panel-max-width: {$hierarchyPanel?.dimensions?.maxWidth ? $hierarchyPanel.dimensions.maxWidth + 'px' : 'none'};
+		"
+	>
 		<div class="panel left-panel">
 			<div class="panel-title">
 				<span>Device</span>
@@ -390,7 +554,20 @@
 			</div>
 			<div class="panel-content">
 				<div class="screenshot-wrapper">
-					<DeviceScreenshot />
+					<DeviceScreenshot
+						bind:this={deviceScreenshotComponent}
+						bind:interactionMode={deviceInteractionMode}
+						bind:isRefreshing={deviceIsRefreshing}
+					/>
+				</div>
+				<div class="multi-select-controls">
+					<DeviceControls
+						handleRefresh={handleDeviceRefresh}
+						bind:interactionMode={deviceInteractionMode}
+						bind:isRefreshing={deviceIsRefreshing}
+					/>
+					<MultiSelectToggle />
+					<SelectedElementsList />
 				</div>
 			</div>
 		</div>
@@ -417,7 +594,7 @@
 					<LLMAssistant
 						{getAppVariables}
 						{callBackend}
-						{updateMessage}
+						updateMessage={legacyUpdateMessage}
 						{PythonConsoleManager}
 						{escapeHtml}
 						{openGlobalTab}
@@ -428,7 +605,7 @@
 			</div>
 		</div>
 
-		<div class="panel right-panel">
+		<div class="panel right-panel" class:hierarchy-active={rightTab === 'hierarchy'}>
 			<div class="tabs">
 				<button
 					class="tab-button"
@@ -447,8 +624,8 @@
 			</div>
 			<div class="panel-content">
 				{#if rightTab === 'python'}
-					<!-- The PythonConsole no longer needs extra padding -->
-					<PythonConsole serial={$selectedSerial} />
+					<!-- Enhanced Python Console with integrated resizable output panel -->
+					<PythonConsoleWithOutput serial={$selectedSerial} />
 				{:else}
 					{#if $isLoadingHierarchy}
 						<p style="padding: 1rem; color: #888;">Loading UI hierarchy…</p>
@@ -475,7 +652,7 @@
 							{/if}
 						</div>
 						<div class="tree-wrapper">
-							<ul style="padding-left: 0.5rem;">
+							<ul>
 								<HierarchyTree
 									node={$hierarchy}
 									bind:expanded={expandedKeys}
@@ -494,5 +671,8 @@
 	{#if $pythonConsoleStore.isOpen}
 		<ConsoleOutput />
 	{/if}
+
+	<!-- ✅ Global Notification System: Toast and global messages -->
+	<NotificationContainer />
 </main>
 

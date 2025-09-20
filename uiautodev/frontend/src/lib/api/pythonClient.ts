@@ -55,20 +55,27 @@ export async function interruptExecution(serial: string): Promise<void> {
 }
 
 export async function getPythonCompletions(
-	payload: PythonCompletionRequest
+	payload: PythonCompletionRequest,
+	signal?: AbortSignal
 ): Promise<PythonCompletionSuggestion[]> {
 	const url = `${BASE_URL}/api/python/completions`;
 
 	const res = await fetch(url, {
 		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify(payload)
+		headers: {
+			'Content-Type': 'application/json',
+			'Accept': 'application/json'
+		},
+		body: JSON.stringify(payload),
+		signal
 	});
 	if (!res.ok) {
 		const text = await res.text();
 		throw new Error(`Completions error: ${res.status} ${text}`);
 	}
-	return res.json();
+	const result = await res.json();
+	// Handle both array format and object format with completions field
+	return Array.isArray(result) ? result : (result.completions || []);
 }
 
 export async function sendChatMessage(

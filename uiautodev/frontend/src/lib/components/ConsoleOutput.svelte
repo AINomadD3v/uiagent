@@ -1,14 +1,26 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { pythonConsoleStore } from '$lib/stores/pythonConsole';
+	import {
+		panelActions,
+		consoleOutputFloatingPanel,
+		constrainPosition,
+		getResponsivePosition,
+		type PanelPosition,
+		type PanelDimensions
+	} from '$lib/stores/panelState';
+	import { browser } from '$app/environment';
 
 	// --- Component State ---
 	let lines: string[] = [];
 	let panelEl: HTMLDivElement;
 
-	// --- Position and Size State ---
-	let position = { x: window.innerWidth - 650, y: window.innerHeight - 400 };
-	let size = { w: 600, h: 300 };
+	// --- Position and Size State (from panel store) ---
+	$: panelState = $consoleOutputFloatingPanel;
+	$: position = panelState?.position || getResponsivePosition(panelState?.dimensions || {});
+	$: dimensions = panelState?.dimensions || { width: 600, height: 300 };
+	$: currentWidth = dimensions.width || 600;
+	$: currentHeight = dimensions.height || 300;
 
 	// --- Dragging State ---
 	let isDragging = false;
@@ -19,6 +31,18 @@
 	let resizeStart = { x: 0, y: 0, w: 0, h: 0 };
 
 	onMount(() => {
+		// Initialize panel state if not exists
+		if (!panelActions.getPanel('console-output-floating')) {
+			const defaultPos = getResponsivePosition({ width: 600, height: 300 });
+			panelActions.updatePosition('console-output-floating', defaultPos);
+			panelActions.updateDimensions('console-output-floating', {
+				width: 600,
+				height: 300,
+				minWidth: 300,
+				minHeight: 150
+			});
+		}
+
 		const unsubscribe = pythonConsoleStore.subscribe(($s) => {
 			lines = $s.output;
 		});
@@ -28,16 +52,26 @@
 			if (isDragging) {
 				const dx = e.clientX - dragStart.x;
 				const dy = e.clientY - dragStart.y;
-				position = { x: position.x + dx, y: position.y + dy };
+				const newPosition = {
+					x: position.x + dx,
+					y: position.y + dy
+				};
+
+				// Constrain position to viewport
+				const constrainedPosition = constrainPosition(newPosition, dimensions);
+				panelActions.updatePosition('console-output-floating', constrainedPosition);
+
 				dragStart = { x: e.clientX, y: e.clientY };
 			}
 			if (isResizing) {
 				const dw = e.clientX - resizeStart.x;
 				const dh = e.clientY - resizeStart.y;
-				size = {
-					w: Math.max(300, resizeStart.w + dw),
-					h: Math.max(150, resizeStart.h + dh)
+				const newDimensions = {
+					width: Math.max(dimensions.minWidth || 300, resizeStart.w + dw),
+					height: Math.max(dimensions.minHeight || 150, resizeStart.h + dh)
 				};
+
+				panelActions.updateDimensions('console-output-floating', newDimensions);
 			}
 		};
 
@@ -46,6 +80,11 @@
 			isResizing = false;
 			document.body.style.cursor = '';
 			document.body.style.userSelect = '';
+
+			// Force save state after interaction
+			if (isDragging || isResizing) {
+				panelActions.forceSave();
+			}
 		};
 
 		window.addEventListener('mousemove', handleMouseMove);
@@ -60,6 +99,9 @@
 
 	// --- Drag and Resize Initiators ---
 	function handleDragStart(e: MouseEvent) {
+		e.preventDefault();
+		e.stopPropagation();
+
 		isDragging = true;
 		dragStart = { x: e.clientX, y: e.clientY };
 		document.body.style.cursor = 'move';
@@ -67,22 +109,35 @@
 	}
 
 	function handleResizeStart(e: MouseEvent) {
+		e.preventDefault();
+		e.stopPropagation();
+
 		isResizing = true;
-		resizeStart = { x: e.clientX, y: e.clientY, w: size.w, h: size.h };
+		resizeStart = {
+			x: e.clientX,
+			y: e.clientY,
+			w: currentWidth,
+			h: currentHeight
+		};
 		document.body.style.cursor = 'nwse-resize';
 		document.body.style.userSelect = 'none';
+	}
+
+	// --- Panel Actions ---
+	function closePanel() {
+		pythonConsoleStore.close();
 	}
 </script>
 
 <div
 	class="floating-panel-container"
 	bind:this={panelEl}
-	style="left: {position.x}px; top: {position.y}px; width: {size.w}px; height: {size.h}px;"
+	style="left: {position.x}px; top: {position.y}px; width: {currentWidth}px; height: {currentHeight}px;"
 >
 	<!-- Header: Title, Drag Handle, Close Button -->
-	<div class="panel-header" on:mousedown|self={handleDragStart}>
+	<div class="panel-header" role="toolbar" on:mousedown|self={handleDragStart}>
 		<span class="panel-title">Console Output</span>
-		<button class="close-btn" on:click={() => pythonConsoleStore.close()} title="Close">×</button>
+		<button class="close-btn" on:click={closePanel} title="Close">×</button>
 	</div>
 
 	<!-- Output Content -->
@@ -97,7 +152,13 @@
 	</div>
 
 	<!-- Resize Handle -->
-	<div class="resize-handle" on:mousedown|preventDefault={handleResizeStart}></div>
+	<div
+		class="resize-handle"
+		role="button"
+		tabindex="0"
+		aria-label="Resize panel"
+		on:mousedown|preventDefault={handleResizeStart}
+	></div>
 </div>
 
 <style>

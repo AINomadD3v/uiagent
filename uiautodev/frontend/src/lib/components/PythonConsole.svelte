@@ -45,13 +45,12 @@
 
 	/** ✅ NEW: This function calls the backend to stop the current script. */
 	async function stopCode() {
-		if (!browser) return;
+		if (!browser || !serial) return;
 		console.log('Attempting to stop script execution...');
 		try {
-			await interruptExecution();
+			await interruptExecution(serial);
 			pythonConsoleStore.appendOutput('\n⏹️ Execution stop request sent.');
-			// The store will set isRunning to false automatically when executeInteractive finishes.
-			// For immediate feedback, we could also call pythonConsoleStore.setIsRunning(false) here.
+			pythonConsoleStore.setIsRunning(false);
 		} catch (e: any) {
 			pythonConsoleStore.appendOutput(`\nFailed to send stop signal: ${e.message}`);
 		}

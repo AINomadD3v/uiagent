@@ -47,6 +47,9 @@
 		margin: 0;
 		padding-left: 18px; /* Indentation for nested levels */
 		position: relative;
+		min-width: max-content; /* Allow horizontal expansion */
+		width: max-content; /* Take natural width */
+		max-width: none; /* No maximum width */
 	}
 
 	/* The main vertical line connecting all items in a list. Made subtler. */
@@ -62,6 +65,8 @@
 
 	li {
 		position: relative;
+		min-width: max-content; /* Allow li to expand with content */
+		width: max-content; /* Take natural width */
 	}
 
 	/* The horizontal "elbow" connecting the item to the vertical line */
@@ -90,10 +95,13 @@
 	.node-content {
 		border-radius: 4px;
 		padding: 1px 0 1px 4px;
-		margin-right: 4px;
+		margin-right: 0; /* Remove margin that might clip content */
 		position: relative;
-		overflow: hidden; /* For the selection bar */
+		overflow: visible; /* Allow content to extend for horizontal scrolling */
 		transition: background-color 0.1s ease-in-out;
+		min-width: max-content; /* Ensure content determines width */
+		width: max-content; /* Force content to take its natural width */
+		max-width: none; /* Remove any max-width constraint */
 	}
 	.node-content:hover {
 		background-color: #2a2a2d;
@@ -130,6 +138,7 @@
 		display: flex;
 		align-items: center;
 		gap: 0.15rem; /* Tighter gap */
+		min-width: max-content; /* Allow row to determine its width */
 	}
 
 	.toggle {
@@ -152,6 +161,8 @@
 		white-space: nowrap;
 		font-size: 13px;
 		color: #cccccc;
+		display: inline-block; /* Ensure proper width calculation */
+		min-width: max-content; /* Force full width */
 	}
 	.selected .label {
 		color: #fff;
@@ -164,6 +175,7 @@
 		color: #888;
 		white-space: nowrap;
 		padding-top: 1px;
+		min-width: max-content; /* Force full width */
 	}
 	.selected .properties-row {
 		color: #a0cff1; /* Lighter color when selected */
