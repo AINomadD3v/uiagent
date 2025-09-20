@@ -1,0 +1,69 @@
+@startuml system-overview
+!theme aws-orange
+title UIAutodev - System Architecture Overview
+
+!define RECTANGLE class
+
+actor Developer as dev
+actor Device as device
+
+package "UIAutodev Platform" {
+  rectangle frontend as "SvelteKit Frontend\n(TypeScript)" {
+    component "Device Viewer" as viewer
+    component "Python Console" as console
+    component "AI Chat Interface" as chat
+  }
+
+  rectangle backend as "FastAPI Backend\n(Python 3.13)" {
+    component "REST API" as api
+    component "Device Manager" as manager
+    component "LLM Service" as llm
+    component "Code Executor" as executor
+  }
+
+  rectangle automation as "Android Automation" {
+    component "uiautomator2" as ui2
+    component "ADB Bridge" as adb
+    component "Device Drivers" as drivers
+  }
+}
+
+rectangle external as "External Services" {
+  component "LLM Providers\n(DeepSeek, OpenAI)" as providers
+  component "RAG API" as rag
+}
+
+dev --> frontend : "Web Interface\n(localhost:5173)"
+frontend --> backend : "HTTP/WebSocket\n(localhost:20242)"
+backend --> automation : "Device Commands"
+automation --> device : "ADB/UI Commands"
+backend --> external : "AI/ML Services"
+
+frontend ..> viewer : "Real-time Screenshots"
+frontend ..> console : "Python Code Execution"
+frontend ..> chat : "AI-Powered Assistance"
+
+backend ..> api : "REST Endpoints"
+backend ..> manager : "Multi-device Control"
+backend ..> llm : "AI Integration"
+backend ..> executor : "Code Execution"
+
+automation ..> ui2 : "UI Automation"
+automation ..> adb : "Device Communication"
+automation ..> drivers : "Custom Device Logic"
+
+note right of backend
+  - FastAPI with async/await
+  - Pydantic data models
+  - Streaming responses (SSE)
+  - Process management
+end note
+
+note right of frontend
+  - SvelteKit 5.0
+  - CodeMirror editor
+  - Real-time updates
+  - TypeScript safety
+end note
+
+@enduml

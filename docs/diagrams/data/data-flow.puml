@@ -1,0 +1,81 @@
+@startuml data-flow
+!theme aws-orange
+title UIAutodev - Data Flow Architecture
+
+start
+
+:Developer Action;
+note right: Web UI interaction\n(device control, code execution, AI chat)
+
+:Frontend Request;
+note right: HTTP/WebSocket to FastAPI backend\n(localhost:20242)
+
+:API Gateway;
+note right: Request validation and routing
+
+if (Request Type?) then (Device Operation)
+  :Device Manager;
+  :Android Provider;
+  if (Device Connected?) then (yes)
+    :Execute Device Command;
+    if (Screenshot Request?) then (yes)
+      :Capture Screenshot;
+      :Process Image;
+      :Return Image Data;
+    elseif (UI Hierarchy?) then (yes)
+      :Parse XML Hierarchy;
+      :Build Node Tree;
+      :Return UI Structure;
+    elseif (Device Interaction?) then (yes)
+      :Execute Touch/Swipe;
+      :Return Success Status;
+    endif
+  else (no)
+    :Return Device Error;
+  endif
+
+elseif (Code Execution) then
+  :Code Executor;
+  :Python Environment;
+  if (Code Valid?) then (yes)
+    :Execute in Subprocess;
+    :Stream Output;
+    :Return Results;
+  else (no)
+    :Return Syntax Error;
+  endif
+
+elseif (AI Chat) then
+  :LLM Service;
+  :Provider Router;
+  if (Provider Available?) then (yes)
+    :Format Request;
+    :Stream to LLM;
+    :Process Response;
+    :Stream to Frontend;
+  else (no)
+    :Return Provider Error;
+  endif
+
+else (Configuration)
+  :Return App Info;
+endif
+
+:Format Response;
+note right: JSON/SSE formatting
+
+:Frontend Update;
+note right: UI state update
+
+:Developer Feedback;
+note right: Visual/audio feedback
+
+stop
+
+note right
+Data flows are asynchronous where possible,
+with streaming for real-time updates
+(screenshots, code output, AI responses)
+end note
+
+@enduml

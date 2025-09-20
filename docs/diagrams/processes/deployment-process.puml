@@ -1,0 +1,93 @@
+@startuml deployment-process
+!theme aws-orange
+title UIAutodev - Development and Deployment Process
+
+start
+
+:Developer Setup;
+note right: New developer joins project
+
+:Clone Repository;
+:cd uiagent;
+
+if (Nix Available?) then (yes)
+  :nix develop;
+  note right: Automatic environment setup\nwith all dependencies
+else (no)
+  :Manual Dependency Installation;
+  note right: Python 3.13, Node.js, ADB\nNot recommended
+endif
+
+:Environment Verification;
+:Check Android Device Connection;
+note right: adb devices\nEnsure USB debugging enabled
+
+:Start Development Servers;
+:./start-dev.sh;
+note right: Parallel startup:\n- Backend: uvicorn on :20242\n- Frontend: vite on :5173
+
+:Code Changes;
+
+:Frontend Development;
+:Edit SvelteKit Components;
+:TypeScript/JavaScript;
+
+:Backend Development;
+:Edit Python FastAPI;
+:Model/Route Changes;
+
+:Test Changes;
+:API Testing via /docs;
+:Frontend Testing;
+
+if (Tests Pass?) then (yes)
+  :Commit Changes;
+  :git commit -m "feat: description";
+else (no)
+  :Fix Issues;
+  :pytest for backend;
+  :svelte-check for frontend;
+endif
+
+:Build Frontend;
+:cd frontend && npm run build;
+
+:Prepare Production Environment;
+if (Deployment Target?) then (Docker)
+  :Create Dockerfile;
+  :Multi-stage build;
+  :Python + Node.js;
+elseif (NixOS?) then (yes)
+  :Create Nix Expression;
+  :Declarative deployment;
+else (Traditional)
+  :Setup Python venv;
+  :Install dependencies;
+  :Configure reverse proxy;
+endif
+
+:Deploy Backend;
+:Configure Environment Variables;
+note right: API keys, device connections\nSecurity credentials
+
+:Deploy Frontend;
+:Static file serving;
+:Configure reverse proxy;
+
+:Health Checks;
+:API endpoint verification;
+:Device connectivity test;
+
+if (Deployment Successful?) then (yes)
+  :Monitor System;
+  :Log aggregation;
+  :Performance monitoring;
+else (no)
+  :Rollback;
+  :Investigate issues;
+  :Fix and redeploy;
+endif
+
+stop
+
+@enduml

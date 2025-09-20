@@ -1,0 +1,101 @@
+@startuml api-sequence
+!theme aws-orange
+title UIAutodev - API Interaction Sequence
+
+actor Developer as dev
+participant "SvelteKit\nFrontend" as fe
+participant "FastAPI\nBackend" as api
+participant "Device\nProvider" as device
+participant "Android\nDriver" as android
+participant "Physical\nDevice" as phone
+
+== Device Discovery and Connection ==
+
+dev -> fe: Open UIAutodev
+fe -> api: GET /api/devices/list
+api -> device: list_devices()
+device -> android: discover_devices()
+android -> phone: adb devices
+phone --> android: device_list
+android --> device: DeviceInfo[]
+device --> api: device_data
+api --> fe: JSON Response
+fe --> dev: Device List UI
+
+== Screenshot Capture ==
+
+dev -> fe: Click "Take Screenshot"
+fe -> api: POST /api/devices/{serial}/screenshot
+api -> device: capture_screenshot(serial)
+device -> android: get_screenshot()
+android -> phone: screencap
+phone --> android: image_bytes
+android --> device: processed_image
+device --> api: image_data
+api --> fe: Base64 Image
+fe --> dev: Display Screenshot
+
+== UI Hierarchy Analysis ==
+
+dev -> fe: Click "Analyze UI"
+fe -> api: GET /api/devices/{serial}/hierarchy
+api -> device: get_ui_hierarchy(serial)
+device -> android: dump_hierarchy()
+android -> phone: uiautomator dump
+phone --> android: xml_data
+android -> android: parse_xml_to_nodes()
+android --> device: Node tree
+device --> api: hierarchy_data
+api --> fe: JSON Node Tree
+fe --> dev: Interactive UI Tree
+
+== Python Code Execution ==
+
+dev -> fe: Type Python code
+fe -> api: POST /api/python/completions
+api -> api: jedi_completion()
+api --> fe: Completion suggestions
+fe --> dev: Autocomplete dropdown
+
+dev -> fe: Execute code
+fe -> api: POST /api/devices/{serial}/execute
+api -> device: execute_interactive_code()
+device -> android: run_python_script()
+note right: Code executes with device context
+android --> device: execution_result
+device --> api: result_data
+api --> fe: Streaming response (SSE)
+fe --> dev: Real-time output
+
+== AI Chat Integration ==
+
+dev -> fe: Ask AI question
+fe -> api: POST /api/llm/chat
+api -> api: prepare_llm_request()
+api -> api: LLM Provider (DeepSeek/OpenAI)
+note right: Streaming response via SSE
+api --> fe: Streaming AI response
+fe --> dev: Real-time AI chat
+
+== Error Handling ==
+
+alt Device Disconnected
+  api -> device: device_operation()
+  device --> api: DeviceError
+  api --> fe: HTTP 500 + Error details
+  fe --> dev: Error notification
+end
+
+alt Code Execution Error
+  api -> device: execute_code()
+  device --> api: ExecutionError
+  api --> fe: Error stream (SSE)
+  fe --> dev: Error in console
+end
+
+note over dev, phone
+All operations support real-time streaming where applicable.
+WebSocket connections maintain persistent state for device monitoring.
+end note
+
+@enduml

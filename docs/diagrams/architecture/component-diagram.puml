@@ -1,0 +1,103 @@
+@startuml component-diagram
+!theme aws-orange
+title UIAutodev - Component Architecture
+
+package "Frontend Layer" {
+  [Web Interface] as web
+  [Device Viewer] as viewer
+  [Code Editor] as editor
+  [AI Chat] as chat
+}
+
+package "API Layer" {
+  [FastAPI Gateway] as gateway
+  [Authentication] as auth
+  [Request Validation] as validation
+}
+
+package "Business Logic Layer" {
+  [Device Manager] as devicemgr
+  [LLM Service] as llmservice
+  [Code Executor] as codeexec
+  [Python Environment] as pyenv
+}
+
+package "Data Layer" {
+  [Device Provider] as provider
+  [Process Manager] as procmgr
+  [State Manager] as statemgr
+}
+
+package "Integration Layer" {
+  [Android Driver] as android
+  [uiautomator2 Bridge] as ui2bridge
+  [ADB Interface] as adbintf
+  [LLM Backends] as llmback
+}
+
+package "External Systems" {
+  database "Device Pool" as devices
+  cloud "LLM Services" as llmcloud
+  queue "Process Queue" as queue
+}
+
+' Frontend connections
+web --> gateway : HTTP/WebSocket
+viewer --> gateway : Screenshot API
+editor --> gateway : Code Execution API
+chat --> gateway : LLM Streaming API
+
+' API Layer connections
+gateway --> auth : Validate Requests
+gateway --> validation : Input Validation
+validation --> devicemgr : Device Operations
+validation --> llmservice : AI Requests
+validation --> codeexec : Code Execution
+
+' Business Logic connections
+devicemgr --> provider : Device Abstraction
+llmservice --> llmback : Provider Routing
+codeexec --> pyenv : Python Runtime
+codeexec --> procmgr : Process Control
+
+' Data Layer connections
+provider --> android : Device Commands
+procmgr --> statemgr : State Persistence
+statemgr --> queue : Background Tasks
+
+' Integration Layer connections
+android --> ui2bridge : UI Automation
+android --> adbintf : Device Communication
+ui2bridge --> devices : Physical Devices
+adbintf --> devices : ADB Connection
+llmback --> llmcloud : External AI APIs
+
+note right of gateway
+  - CORS enabled for development
+  - Server-Sent Events for streaming
+  - Async request handling
+  - Error handling middleware
+end note
+
+note right of devicemgr
+  - Multi-device support
+  - Device discovery and connection
+  - Screenshot capture
+  - UI hierarchy analysis
+end note
+
+note right of llmservice
+  - Multiple provider backends
+  - Streaming response handling
+  - Context management
+  - RAG integration
+end note
+
+note right of codeexec
+  - Secure code execution
+  - Jedi autocompletion
+  - Process isolation
+  - Interrupt handling
+end note
+
+@enduml
