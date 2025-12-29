@@ -218,31 +218,34 @@
             export PYTHONPATH=".:$PYTHONPATH"
             __uiautodev_path_added=1
 
-            echo ""
-            echo "=================================================="
-            echo " uiautodev Development Environment Activated"
-            echo "=================================================="
-            echo ""
-            echo "Tools Ready:"
-            # Directly use the python path from Nix; execute to get version
-            # Use which for other tools, check if found
-            echo "  ADB:    $(which adb || echo 'Not found in PATH')"
-            echo "  Poetry: $(which poetry || echo 'Not found in PATH')"
-            echo ""
+            # Only show shell hook output if not suppressed
+            if [ -z "$SUPPRESS_SHELL_HOOK" ]; then
+              echo ""
+              echo "=================================================="
+              echo " uiautodev Development Environment Activated"
+              echo "=================================================="
+              echo ""
+              echo "Tools Ready:"
+              # Directly use the python path from Nix; execute to get version
+              # Use which for other tools, check if found
+              echo "  ADB:    $(which adb || echo 'Not found in PATH')"
+              echo "  Poetry: $(which poetry || echo 'Not found in PATH')"
+              echo ""
 
-            # Report PYTHONPATH setup
-            echo "Project Setup:"
-            echo "  PYTHONPATH includes current directory (flattened structure)"
-            unset __uiautodev_path_added # Clean up temporary variable
-            echo ""
+              # Report PYTHONPATH setup
+              echo "Project Setup:"
+              echo "  PYTHONPATH includes current directory (flattened structure)"
+              unset __uiautodev_path_added # Clean up temporary variable
+              echo ""
 
-            echo "To run the uiautodev server:"
-            echo "  uvicorn app:app --host 127.0.0.1 --port 20242 --reload"
-            echo ""
-            echo "Access the server at: http://127.0.0.1:20242"
-            echo ""
-            echo "=================================================="
-            echo ""
+              echo "To run the uiautodev server:"
+              echo "  uvicorn app:app --host 127.0.0.1 --port 20242 --reload"
+              echo ""
+              echo "Access the server at: http://127.0.0.1:20242"
+              echo ""
+              echo "=================================================="
+              echo ""
+            fi
           '';
         };
       }

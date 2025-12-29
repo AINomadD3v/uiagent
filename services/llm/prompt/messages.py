@@ -23,7 +23,7 @@ def build_llm_payload_messages(
 ) -> List[Dict[str, Any]]:
     """
     Builds a list of chat messages for the OpenAI-compatible LLM API.
-    It merges system prompt, history, RAG context, UI hierarchy info,
+    It merges system prompt, history, UI hierarchy info,
     traceback, selected elements, console output, and the final user request.
     """
 
@@ -42,12 +42,6 @@ def build_llm_payload_messages(
     # Step 4: Build a context block to send with the final user message
     context_sections: List[str] = []
 
-    # Inject relevant code snippets from RAG (CocoIndex)
-    rag_snippets = context_data.get("rag_code_snippets")
-    if rag_snippets and "Error:" not in rag_snippets:
-        context_sections.append(
-            f"## 📚 Retrieved uiautomator2 Code Snippets:\n{rag_snippets}"
-        )
 
     # Include traceback if Python error captured
     if trace := context_data.get("pythonLastErrorTraceback"):

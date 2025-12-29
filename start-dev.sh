@@ -21,7 +21,7 @@ trap cleanup SIGINT SIGTERM
 
 # Start backend server
 echo "🔧 Starting backend server (port 20242)..."
-nix develop --command uvicorn app:app --host 127.0.0.1 --port 20242 --reload &
+SUPPRESS_SHELL_HOOK=1 nix develop --command uvicorn app:app --host 127.0.0.1 --port 20242 --reload &
 BACKEND_PID=$!
 
 # Wait a moment for backend to start
@@ -30,7 +30,7 @@ sleep 2
 # Start frontend server
 echo "🎨 Starting frontend server (port 5173)..."
 cd frontend
-nix develop --command npm run dev &
+SUPPRESS_SHELL_HOOK=1 nix develop --command npm run dev &
 FRONTEND_PID=$!
 cd ..
 

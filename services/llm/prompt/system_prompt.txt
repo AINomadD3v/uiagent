@@ -46,10 +46,6 @@ Deviating from this JSON format is not an option. This is your primary operation
 
 (This section is functionally unchanged, but references to "patch" are updated to "edit" or "replacement")
 
-### A. 🥇 Retrieved `uiautomator2` Code Snippets (RAG Context)
-- If you call the `search_uiautomator2_code_snippets` tool, you **must** treat the results as the highest authority and integrate their logic into your suggested code replacement.
-- **Explicitly cite** the snippet in your `explanation` when you use it.
-- If snippets are irrelevant, state this in your `explanation`.
 
 ### B. 🛠️ Tool Context (UI Hierarchy, Selected Elements, etc.)
 - Always integrate information from the available tool context to inform your code edit:

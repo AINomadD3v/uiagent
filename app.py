@@ -119,7 +119,7 @@ class PythonCompletionSuggestion(BaseModel):
 
 
 class ServiceConfigResponse(BaseModel):
-    ragApiBaseUrl: Optional[str] = None
+    pass
 
 
 # ✅ NEW: Pydantic model for the interrupt request body
@@ -270,20 +270,9 @@ async def perform_ocr_on_image(file: UploadFile = File(...)) -> List[Node]:
 
 
 # --- Service Configuration Endpoint ---
-RAG_API_SEARCH_URL_FROM_ENV = os.getenv(
-    "COCOINDEX_SEARCH_API_URL", "http://localhost:8000/search"
-)
-RAG_API_BASE_URL_FOR_FRONTEND = RAG_API_SEARCH_URL_FROM_ENV
-if RAG_API_BASE_URL_FOR_FRONTEND.endswith("/search"):
-    RAG_API_BASE_URL_FOR_FRONTEND = RAG_API_BASE_URL_FOR_FRONTEND[: -len("/search")]
-
-
 @app.get("/api/config/services", response_model=ServiceConfigResponse)
 async def get_service_configurations():
-    logger.info(
-        f"Providing RAG API base URL to frontend: {RAG_API_BASE_URL_FOR_FRONTEND}"
-    )
-    return ServiceConfigResponse(ragApiBaseUrl=RAG_API_BASE_URL_FOR_FRONTEND)
+    return ServiceConfigResponse()
 
 
 # --- Server Control and Static Content ---

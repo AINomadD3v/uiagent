@@ -8,7 +8,6 @@ import httpx
 from model import ChatMessageContent, LlmServiceChatRequest
 
 from services.llm.prompt.messages import build_llm_payload_messages
-from services.llm.tools.rag import fetch_rag_code_snippets
 
 logger = logging.getLogger(__name__)
 
@@ -16,25 +15,6 @@ DEEPSEEK_API_URL = "https://api.deepseek.com/chat/completions"
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
 DEEPSEEK_DEFAULT_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
 
-RAG_TOOL_DEFINITION = [
-    {
-        "type": "function",
-        "function": {
-            "name": "search_uiautomator2_code_snippets",
-            "description": "Searches a specialized knowledge base for uiautomator2 code snippets, examples, and API usage.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "Search string for uiautomator2 code help",
-                    }
-                },
-                "required": ["query"],
-            },
-        },
-    }
-]
 
 
 async def generate_chat_completion_stream(
@@ -68,7 +48,6 @@ async def generate_chat_completion_stream(
                 "stream": True,
                 "temperature": request_data.temperature or 0.7,
                 "max_tokens": request_data.max_tokens or 2048,
-                "tools": RAG_TOOL_DEFINITION,
                 "tool_choice": tool_choice_setting,
             }
 
@@ -97,33 +76,6 @@ async def generate_chat_completion_stream(
                         if delta.get("content"):
                             yield f"data: {json.dumps(delta['content'])}\n\n"
 
-                        if delta.get("tool_calls"):
-                            tool_calls_to_process = delta["tool_calls"]
-
-                        finish_reason = choice.get("finish_reason")
-                        if finish_reason == "tool_calls" and tool_calls_to_process:
-                            for tool_call in tool_calls_to_process:
-                                fn = tool_call["function"]["name"]
-                                tool_id = tool_call["id"]
-                                args = json.loads(
-                                    tool_call["function"].get("arguments", "{}")
-                                )
-                                query = args.get("query")
-
-                                if fn == "search_uiautomator2_code_snippets" and query:
-                                    tool_response = await fetch_rag_code_snippets(query)
-                                else:
-                                    tool_response = f"Error: Unknown tool {fn}"
-
-                                messages.append(
-                                    {
-                                        "role": "tool",
-                                        "tool_call_id": tool_id,
-                                        "name": fn,
-                                        "content": tool_response,
-                                    }
-                                )
-                            tool_choice_setting = "none"
 
                     except Exception as e:
                         logger.warning(f"DeepSeek stream chunk parse error: {e}")

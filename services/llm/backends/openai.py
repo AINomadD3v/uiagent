@@ -10,7 +10,6 @@ import httpx
 from model import ChatMessageContent, LlmServiceChatRequest
 
 from services.llm.prompt.messages import build_llm_payload_messages
-from services.llm.tools.rag import fetch_rag_code_snippets
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +23,7 @@ async def generate_chat_completion_stream(
 ) -> AsyncGenerator[str, None]:
     """
     Stream chat completions from OpenAI using the user prompt and context.
-    Injects relevant RAG documentation into the context before generation.
+    Generates streaming chat completions via OpenAI API.
     """
 
     if not OPENAI_API_KEY:
@@ -32,21 +31,10 @@ async def generate_chat_completion_stream(
         yield f"event: end-of-stream\ndata: {json.dumps({'message': 'Stream terminated'})}\n\n"
         return
 
-    # -------------------------
-    # 🔍 Inject RAG into Context
-    # -------------------------
-    context = dict(request_data.context or {})
-    if "rag_code_snippets" not in context:
-        try:
-            rag_snippets = await fetch_rag_code_snippets(request_data.prompt)
-            context["rag_code_snippets"] = rag_snippets
-            logger.info("✅ Injected RAG snippets into context")
-        except Exception as e:
-            logger.warning(f"⚠️ Failed to fetch RAG snippets: {e}")
-
     # -------------------------------
     # 🧠 Build OpenAI chat messages
     # -------------------------------
+    context = dict(request_data.context or {})
     messages = build_llm_payload_messages(
         user_prompt=request_data.prompt,
         context_data=context,

@@ -4,7 +4,6 @@ from typing import AsyncGenerator
 
 from model import LlmServiceChatRequest
 from services.llm.backends import router
-from services.llm.tools.rag import fetch_rag_code_snippets
 
 logger = logging.getLogger(__name__)
 
@@ -17,14 +16,6 @@ async def generate_chat_completion_stream(
     complete response from the LLM to detect if it's a structured JSON tool
     call or a standard text/markdown message.
     """
-    # Inject RAG context before sending the request to the LLM backend.
-    if "rag_code_snippets" not in request_data.context:
-        try:
-            rag_snippets = await fetch_rag_code_snippets(request_data.prompt)
-            request_data.context["rag_code_snippets"] = rag_snippets
-            logger.info("[LLM SERVICE] Injected RAG context into request.")
-        except Exception as e:
-            logger.warning(f"[LLM SERVICE] Failed to inject RAG context: {e}")
 
     # --- Buffering Logic ---
     # Instead of streaming directly, we accumulate the full response first.
