@@ -45,7 +45,6 @@
 - **Frontend (SvelteKit)** → **Backend (FastAPI)** via HTTP API
 - **Backend** → **Android Devices** via uiautomator2/ADB
 - **Backend** → **LLM Services** via modular backend system
-- **External Services**: RAG (Retrieval-Augmented Generation) API integration
 
 ## Data Management
 
@@ -115,7 +114,6 @@
 ### LLM Integration
 - **Provider System**: Modular LLM backend architecture
 - **Supported Providers**: DeepSeek (detected in `/home/aidev/tools/uiagent/services/llm/backends/deepseek.py`)
-- **RAG Integration**: Code snippet retrieval system
 - **Streaming Responses**: Server-Sent Events for real-time LLM communication
 
 ### Code Intelligence

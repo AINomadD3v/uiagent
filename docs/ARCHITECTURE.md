@@ -74,7 +74,6 @@ UIAutodev is a sophisticated Android UI automation platform built with a modern 
 - **Provider System**: Modular architecture supporting multiple LLM providers
 - **Streaming Support**: Real-time streaming responses via Server-Sent Events
 - **Context Management**: Conversation history and context preservation
-- **RAG Integration**: Retrieval-Augmented Generation for code assistance
 
 **Supported Providers**:
 - **DeepSeek**: Primary LLM provider for AI interactions
@@ -260,7 +259,6 @@ nix develop
 
 ### External Service Integration
 - **LLM Providers**: RESTful API integration with streaming support
-- **RAG Services**: Code snippet retrieval and contextual assistance
 - **Android Services**: Deep integration with Android debugging tools
 
 ### Extension Points

@@ -33,10 +33,6 @@
 	const hasLastError = derived(lastErrorTraceback, ($traceback) => $traceback != null);
 	let includeLastError = false;
 
-	// ─── RAG STATUS ─────────────────────────────────────────────────────────────────────────────
-	let ragStatusText = 'RAG Status';
-	let ragStatusClass = '';
-
 	// ─── HELPER FUNCTIONS ───────────────────────────────────────────────────────────────────────
 	function scrollToBottom() {
 		requestAnimationFrame(() => {
@@ -232,28 +228,6 @@
 			chatMessages.update((messages) => [...messages]);
 			scrollToBottom();
 		}, 0);
-
-		const poll = async () => {
-			try {
-				const cfg = await fetch('/api/config/services').then((r) => r.json());
-				if (!cfg.ragApiBaseUrl) throw new Error('RAG API URL not configured.');
-				const url = cfg.ragApiBaseUrl.replace(/\/$/, '') + '/health';
-				const h = await fetch(url).then((r) => r.json());
-				ragStatusText = h.status === 'ok' ? 'RAG Online' : 'RAG Degraded';
-				ragStatusClass =
-					h.status === 'ok'
-						? 'status-ok'
-						: h.status === 'degraded'
-						? 'status-degraded'
-						: 'status-error';
-			} catch {
-				ragStatusText = 'RAG Error';
-				ragStatusClass = 'status-error';
-			}
-		};
-		poll();
-		const id = setInterval(poll, 15000);
-		return () => clearInterval(id);
 	});
 </script>
 
@@ -286,7 +260,6 @@
 			</div>
 
 			<div class="toolbar-group">
-				<div class="rag-status-indicator {ragStatusClass}" title={ragStatusText}></div>
 				<button
 					class="icon-btn"
 					on:click={() => (isSettingsOpen = !isSettingsOpen)}
@@ -514,20 +487,6 @@
 		padding: 6px;
 		border-radius: 4px;
 		cursor: pointer;
-	}
-	.rag-status-indicator {
-		width: 8px;
-		height: 8px;
-		border-radius: 50%;
-	}
-	.rag-status-indicator.status-ok {
-		background-color: #4caf50;
-	}
-	.rag-status-indicator.status-degraded {
-		background-color: #ff9800;
-	}
-	.rag-status-indicator.status-error {
-		background-color: #f44336;
 	}
 	.prompt-input-wrapper {
 		display: flex;

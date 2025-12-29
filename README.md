@@ -49,7 +49,6 @@ UIAutodev follows a modern microservices-style architecture with clear separatio
 ### AI-Powered Development
 - **LLM Integration**: Pluggable LLM providers (DeepSeek, OpenAI, etc.)
 - **Intelligent Automation**: AI-driven UI testing and script generation
-- **RAG Support**: Code snippet retrieval and contextual assistance
 - **Streaming Responses**: Real-time AI interaction via Server-Sent Events
 
 ### Interactive Python Console
