@@ -489,7 +489,9 @@ INSTAGRAM_SIGNATURES: List[ScreenSignature] = [
         app_id=APP_ID,
         screen_id="profile_page",
         description="User profile page (own or others)",
-        required=[":id/profile_header_container"],
+        required=[
+            ":id/profile_viewpager",  # Posts/Reels/Tagged viewpager - profile-specific
+        ],
         forbidden=[
             ":id/action_bar_search_edit_text",
             ":id/clips_viewer_view_pager",
@@ -497,12 +499,18 @@ INSTAGRAM_SIGNATURES: List[ScreenSignature] = [
             ":id/row_search_user_container",
             "text:Your story",
         ],
-        unique=[":id/profile_header_container"],
+        unique=[
+            ":id/profile_viewpager",  # Only exists on profile page
+            ":id/user_detail_fragment",  # Profile fragment
+        ],
         optional=[
+            ":id/profile_header_container",
             ":id/profile_tab_layout",
             ":id/profile_header_bio_text",
+            ":id/action_bar_title_chevron",  # Username dropdown
             "content-desc:Edit profile",
             "content-desc:Follow",
+            "content-desc:Options",
         ],
         priority=35,
         recovery_action="back",
