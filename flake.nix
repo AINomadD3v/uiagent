@@ -125,10 +125,12 @@
         imutilsCustom = pyPkgs.buildPythonPackage rec {
           pname = "imutils";
           version = "0.5.4";
+          pyproject = true;
           src = pkgsWithOverlay.fetchurl {
             url = "https://files.pythonhosted.org/packages/source/i/imutils/imutils-${version}.tar.gz";
             sha256 = "094gbnqhyjha5w7wp6f1mq65mwqwb5i4m1600l1m8p4bragpm0h3";
           };
+          build-system = with pyPkgs; [setuptools];
           propagatedBuildInputs = with pyPkgs; [opencv4 numpy scipy matplotlib];
           doCheck = false;
         };
@@ -195,6 +197,14 @@
             httptools
             python-dotenv
             jedi
+
+            # MCP Server support
+            fastmcp
+            mcp
+            anyio
+            pydantic-settings
+            httpx-sse
+            sse-starlette
 
             adbutilsCustom
             uiautomator2Custom

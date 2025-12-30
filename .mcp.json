@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "uiagent": {
+      "command": "nix",
+      "args": ["develop", "--command", "python", "mcp_server.py"],
+      "cwd": "/home/aidev/phone-farm-tools/uiagent",
+      "env": {
+        "SUPPRESS_SHELL_HOOK": "1"
+      }
+    }
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "_comment": "Auto-loaded popup patterns for UIAgent MCP. Patterns with {PACKAGE_NAME} will have it substituted at runtime.",
+  "patterns": [
+    {
+      "name": "reels_swipe_prompt",
+      "detect_xpath": "//*[contains(@text, 'Swipe to easily access Reels')]",
+      "dismiss_xpath": "//*[@text='Got it']"
+    },
+    {
+      "name": "turn_on_notifications_prompt",
+      "detect_xpath": "//*[contains(@text, 'Turn on notifications')]",
+      "dismiss_xpath": "//*[@text='Skip' or @text='Next' or @content-desc='Skip' or @content-desc='Next']"
+    },
+    {
+      "name": "allow_notifications",
+      "detect_xpath": "//*[contains(@text, 'send you notifications')]",
+      "dismiss_xpath": "//*[contains(@resource-id, 'permission_allow_button')]"
+    },
+    {
+      "name": "old_android_version_warning",
+      "detect_xpath": "//*[@resource-id='android:id/message' and contains(@text, 'built for an older version')]",
+      "dismiss_xpath": "//*[@resource-id='android:id/button1' and (contains(@text, 'OK') or contains(@text, 'Ok'))]"
+    },
+    {
+      "name": "allow_media_access",
+      "detect_xpath": "//*[contains(@text, 'access photos')]",
+      "dismiss_xpath": "//*[contains(@resource-id, 'permission_allow_button')]"
+    },
+    {
+      "name": "post_photos_from_phone_promo",
+      "detect_xpath": "//*[contains(@text, 'Post photos from your phone on Instagram')]",
+      "dismiss_xpath": "//*[@text='Turn on']"
+    },
+    {
+      "name": "ad_tracking_activity_popup",
+      "detect_xpath": "//*[contains(@text, 'Want us to show you ads that are more relevant')]",
+      "dismiss_xpath": "//*[contains(@content-desc, \"Don't use this activity\")]"
+    },
+    {
+      "name": "setup_new_device_contacts",
+      "detect_xpath": "//*[contains(@text, 'contacts') and contains(@text, 'people to follow')]",
+      "dismiss_xpath": "//*[@content-desc='Skip' or @text='Skip']"
+    },
+    {
+      "name": "contacts_permission_onboarding",
+      "detect_xpath": "//*[contains(@text, 'allow access to your contacts')]",
+      "dismiss_xpath": "//*[@content-desc='Next' or @text='Next']"
+    },
+    {
+      "name": "contacts_sync_permission_onboarding",
+      "detect_xpath": "//*[contains(@text, 'Your contacts will be periodically synced') or contains(@text, 'Next, you can allow access to your contacts')]",
+      "dismiss_xpath": "//*[@text='Next' or @content-desc='Next']"
+    },
+    {
+      "name": "add_profile_picture_onboarding",
+      "detect_xpath": "//*[contains(@text, 'Add profile picture')]",
+      "dismiss_xpath": "//*[@text='Skip']"
+    },
+    {
+      "name": "add_email_address_onboarding",
+      "detect_xpath": "//*[contains(@text, 'Add an email address')]",
+      "dismiss_xpath": "//*[@text='Skip' or @content-desc='Skip']"
+    },
+    {
+      "name": "see_more_preferences_onboarding",
+      "detect_xpath": "//*[contains(@text, 'See more of what you love')]",
+      "dismiss_xpath": "//*[@text='Skip']"
+    },
+    {
+      "name": "try_following_people_onboarding",
+      "detect_xpath": "//*[contains(@text, 'Try following 5+ people')]",
+      "dismiss_xpath": "//*[@text='Skip' or @text='Next' or @content-desc='Next']"
+    },
+    {
+      "name": "skip_confirmation_dialog",
+      "detect_xpath": "//*[contains(@text, 'Are you sure you want to skip this step')]",
+      "dismiss_xpath": "//*[@text='Skip']"
+    },
+    {
+      "name": "join_instagram",
+      "detect_xpath": "//*[@content-desc='Join Instagram']",
+      "dismiss_xpath": "//*[@content-desc='I already have an account']"
+    },
+    {
+      "name": "account_restriction_popup",
+      "detect_xpath": "//*[contains(@content-desc, 'We added a restriction to your account')]",
+      "dismiss_xpath": "//*[@content-desc='Cancel' or @text='Cancel']"
+    },
+    {
+      "name": "edit_reel_draft_popup",
+      "detect_xpath": "//*[contains(@text, 'editing your draft?')]",
+      "dismiss_xpath": "//*[contains(@text, 'Start new video')]"
+    },
+    {
+      "name": "new_ways_to_reuse_popup",
+      "detect_xpath": "//*[contains(@text, 'New ways to reuse')]",
+      "dismiss_xpath": "//*[@content-desc='OK' or @text='OK']"
+    },
+    {
+      "name": "reels_create_prompt",
+      "detect_xpath": "//*[contains(@text, 'Create longer Reels')]",
+      "dismiss_xpath": "//*[@text='OK']"
+    },
+    {
+      "name": "samsung_pass_autofill",
+      "detect_xpath": "//*[@resource-id='android:id/autofill_save_icon']",
+      "dismiss_xpath": "//*[@resource-id='android:id/autofill_save_no']"
+    },
+    {
+      "name": "location_services",
+      "detect_xpath": "//*[@content-desc='To use Location Services, allow Instagram to access your location']",
+      "dismiss_xpath": "//*[@content-desc='Continue']"
+    },
+    {
+      "name": "location_permission_deny",
+      "detect_xpath": "//*[contains(@text, 'access this device') and contains(@text, 'location')]",
+      "dismiss_xpath": "//*[@text=\"Don't allow\" or @text='Deny' or @resource-id='com.android.permissioncontroller:id/permission_deny_button']"
+    },
+    {
+      "name": "location_settings_popup",
+      "detect_xpath": "//*[contains(@text, 'your device settings')]",
+      "dismiss_xpath": "//*[@content-desc='Cancel' or @text='Cancel']"
+    },
+    {
+      "name": "deny_device_logs_access",
+      "detect_xpath": "//*[contains(@text, 'access all device logs') or contains(@text, 'access device logs') or contains(@text, 'read log data')]",
+      "dismiss_xpath": "//*[@text=\"Don't allow\" or @resource-id='com.android.permissioncontroller:id/permission_deny_button' or @resource-id='android:id/log_access_dialog_deny_button']"
+    },
+    {
+      "name": "meta_personalized_ads_consent",
+      "detect_xpath": "//*[@text='Choose if we process your data for ads']",
+      "dismiss_xpath": "//*[@clickable='true' and @content-desc='Get started']"
+    },
+    {
+      "name": "meta_ads_consent_final_agreement",
+      "detect_xpath": "//*[@content-desc='To use our Products free of charge with ads, agree to Meta processing your data for the following']",
+      "dismiss_xpath": "//*[@content-desc='Agree' and @clickable='true']"
+    },
+    {
+      "name": "meta_ads_not_interested",
+      "detect_xpath": "//android.view.View[contains(@content-desc, 'all set')]",
+      "dismiss_xpath": "//android.widget.Button[@content-desc='Not interested']"
+    },
+    {
+      "name": "cookies_consent",
+      "detect_xpath": "//*[contains(@content-desc, 'Allow the use of cookies')]",
+      "dismiss_xpath": "//*[@content-desc='Allow all cookies']"
+    },
+    {
+      "name": "data_usage_info",
+      "detect_xpath": "//*[contains(@text, 'How we') and contains(@text, 'use this information')]",
+      "dismiss_xpath": "//*[@text='Continue' or @content-desc='Continue']"
+    },
+    {
+      "name": "first_post_celebration",
+      "detect_xpath": "//*[contains(@text, 'Your first post is something to celebrate')]",
+      "dismiss_xpath": "//*[@text='Dismiss']"
+    }
+  ],
+  "_toast_note": "Android toasts are captured automatically via d.last_toast (AccessibilityService). No xpath patterns needed - they don't work because toasts aren't in the UI hierarchy."
+}

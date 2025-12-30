@@ -1,5 +1,25 @@
 # Tech Stack Analysis - UIAutodev
 
+> **DEPRECATION NOTICE** (December 2025)
+>
+> This document was created in September 2025 and is now significantly outdated.
+>
+> **Major features NOT documented here:**
+> - MCP Server (`mcp_server.py`) - Model Context Protocol integration
+> - Screen Detection system (`signatures/`) - UI fingerprinting and screen identification
+> - Navigation system (`navigation/`) - Graph-based pathfinding between screens
+> - Popup handling system - Automatic popup dismissal patterns
+>
+> **Known issues:**
+> - File paths reference `/home/aidev/tools/uiagent/` which is now `/home/aidev/phone-farm-tools/uiagent/`
+> - References removed RAG/CocoIndex system (removed in commit e66c877)
+> - Does not reflect current project structure
+>
+> **For current documentation, see:**
+> - `docs/MCP.md` - MCP server architecture and tools
+> - `docs/SCREEN-DETECTION.md` - Screen detection and navigation
+> - `progress/` - Session progress files with recent development notes
+
 ## Executive Summary
 - **Primary Language**: Python (24 files) with TypeScript/JavaScript frontend (2,425 files)
 - **Architecture Pattern**: Microservices-style with separate frontend/backend
