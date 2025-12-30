@@ -513,7 +513,7 @@ INSTAGRAM_SIGNATURES: List[ScreenSignature] = [
         app_id=APP_ID,
         screen_id="home_feed",
         description="Main Instagram feed - navigate away for warmup",
-        required=["text:Your story"],
+        required=[":id/row_feed_button_like"],  # Feed post like button - visible when viewing posts
         forbidden=[
             ":id/action_bar_search_edit_text",
             ":id/profile_header_container",
@@ -521,13 +521,19 @@ INSTAGRAM_SIGNATURES: List[ScreenSignature] = [
             ":id/layout_comment_thread_edittext",
         ],
         unique=[
-            "text:Your story",
-            ":id/main_feed_action_bar",
+            ":id/row_feed_button_like",
         ],
         optional=[
+            "text:Your story",
+            ":id/main_feed_action_bar",
             ":id/title_logo",
             ":id/action_bar_inbox_button",
             "content-desc:reels tray container",
+            ":id/feed_preview_keep_watching_button",  # Reel overlay in feed
+            ":id/row_feed_button_comment",
+            ":id/row_feed_button_share",
+            ":id/row_feed_button_save",
+            ":id/media_group",
         ],
         priority=25,
         recovery_action="click_explore",
