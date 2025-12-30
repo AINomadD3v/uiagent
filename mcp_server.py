@@ -2287,7 +2287,30 @@ def search_for_keyword(
 # ============================================================================
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="UIAgent MCP Server")
+    parser.add_argument(
+        "--transport",
+        choices=["stdio", "sse"],
+        default="stdio",
+        help="Transport type: stdio (local) or sse (HTTP for remote access)"
+    )
+    parser.add_argument(
+        "--host",
+        default="0.0.0.0",
+        help="Host to bind SSE server (default: 0.0.0.0)"
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8765,
+        help="Port for SSE server (default: 8765)"
+    )
+    args = parser.parse_args()
+
     logger.info("Starting UIAgent MCP Server...")
+    logger.info(f"Transport: {args.transport}")
     logger.info(
         "Available tools: list_devices, screenshot, run_script, ui_hierarchy, tap, shell, "
         "device_info, get_elements, wait_for, swipe, app_launch, app_terminate, app_list, "
@@ -2296,4 +2319,9 @@ if __name__ == "__main__":
         "get_screen_info, get_detection_stats, navigate_to, recover_to_safe_state, "
         "get_navigation_graph, get_navigation_stats, search_for_keyword"
     )
-    mcp.run()
+
+    if args.transport == "sse":
+        logger.info(f"SSE server listening on http://{args.host}:{args.port}")
+        mcp.run(transport="sse", sse_params={"host": args.host, "port": args.port})
+    else:
+        mcp.run()
