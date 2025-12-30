@@ -1,13 +1,23 @@
 # UIAgent MCP Server Documentation
 
+> **REMOTE SERVER**: This MCP server runs on `office-node` (192.168.40.254:8765) and provides team-wide access via SSE transport. Connect with: `http://192.168.40.254:8765/sse`
+
 ## Overview
 
 The UIAgent MCP (Model Context Protocol) server provides Claude Code with direct access to Android devices through uiautomator2. This server exposes 31 tools organized into four tiers, enabling everything from basic device control to sophisticated screen detection and navigation.
+
+**Deployment Model**:
+- **Remote Server**: Runs on office-node (192.168.40.254) for team-wide access
+- **Transport**: SSE (Server-Sent Events) over HTTP
+- **Access**: Multiple team members can connect simultaneously
+- **No Local Installation**: Team members just configure their Claude Code client to connect
 
 **Key Differentiator**: The `run_script` tool allows Claude to execute complete Python automation scripts in a single call (vs individual tap/swipe commands), making it dramatically more efficient for complex automation tasks.
 
 **Architecture**:
 - Built with FastMCP framework
+- Deployed as a REMOTE MCP server using SSE transport
+- Team-wide access via HTTP at http://192.168.40.254:8765/sse
 - Integrates with existing UIAgent components (AndroidDriver, AndroidProvider)
 - Background thread system for popup management
 - Signature-based screen detection (40+ known Instagram screens)
@@ -15,18 +25,51 @@ The UIAgent MCP (Model Context Protocol) server provides Claude Code with direct
 
 ## Quick Start
 
-### Installation
+### Remote Access (Recommended)
 
-Add the UIAgent MCP server to Claude Code CLI:
+The UIAgent MCP server runs on `office-node` (192.168.40.254:8765) and is accessible to all team members via SSE transport.
+
+Add to your Claude Code configuration:
 
 ```bash
-# Method 1: Using .mcp.json in project directory
+# Using .mcp.json in your project directory
 cat > .mcp.json <<EOF
 {
   "mcpServers": {
-    "uiagent": {
+    "uiagent-remote": {
+      "type": "sse",
+      "url": "http://192.168.40.254:8765/sse"
+    }
+  }
+}
+EOF
+```
+
+Or add globally to `~/.claude/config.json`:
+
+```json
+{
+  "mcpServers": {
+    "uiagent-remote": {
+      "type": "sse",
+      "url": "http://192.168.40.254:8765/sse"
+    }
+  }
+}
+```
+
+### Local Development (Alternative)
+
+For local development or testing, you can run the server locally using stdio transport:
+
+```bash
+# Using .mcp.json in project directory
+cat > .mcp.json <<EOF
+{
+  "mcpServers": {
+    "uiagent-local": {
       "command": "nix",
-      "args": ["develop", "--command", "python", "mcp_server.py"],
+      "args": ["develop", "--command", "python", "mcp_server.py", "--transport", "stdio"],
       "cwd": "/home/aidev/phone-farm-tools/uiagent",
       "env": {
         "SUPPRESS_SHELL_HOOK": "1"
@@ -35,10 +78,19 @@ cat > .mcp.json <<EOF
   }
 }
 EOF
+```
 
-# Method 2: Global installation (user scope)
-claude mcp add uiagent --scope user --transport stdio \
-  -- nix develop /home/aidev/phone-farm-tools/uiagent --command python mcp_server.py
+### Running the Server
+
+The server is deployed on office-node and started automatically. To start manually:
+
+```bash
+# SSE mode (remote access)
+cd /home/aidev/phone-farm-tools/uiagent
+nix develop --command python mcp_server.py --transport sse --host 0.0.0.0 --port 8765
+
+# Stdio mode (local development)
+nix develop --command python mcp_server.py --transport stdio
 ```
 
 ### First Commands
@@ -1755,7 +1807,23 @@ adb shell input keyevent KEYCODE_WAKEUP
 
 ### MCP Server Issues
 
-#### Server not appearing in Claude Code
+#### Server not appearing in Claude Code (Remote SSE)
+
+**Solution**:
+```bash
+# Verify .mcp.json syntax
+cat .mcp.json | jq .
+
+# Test server connectivity
+curl http://192.168.40.254:8765/sse
+
+# Check server is running on office-node
+ssh office-node "ps aux | grep mcp_server.py"
+
+# Restart Claude Code to reload configuration
+```
+
+#### Server not appearing in Claude Code (Local stdio)
 
 **Solution**:
 ```bash
@@ -1763,16 +1831,36 @@ adb shell input keyevent KEYCODE_WAKEUP
 cat .mcp.json | jq .
 
 # Check server starts manually
-nix develop --command python mcp_server.py
+cd /home/aidev/phone-farm-tools/uiagent
+nix develop --command python mcp_server.py --transport stdio
 
 # Restart Claude Code
 ```
 
-#### "fastmcp module not found"
+#### "Connection refused" (Remote SSE)
+
+**Cause**: Server not running or network issue
+
+**Solution**:
+```bash
+# Check if server is running
+curl -v http://192.168.40.254:8765/sse
+
+# Check network connectivity
+ping 192.168.40.254
+
+# Verify server is listening on correct port
+ssh office-node "ss -tlnp | grep 8765"
+
+# Restart server on office-node if needed
+```
+
+#### "fastmcp module not found" (Local development)
 
 **Solution**:
 ```bash
 # Ensure in Nix development environment
+cd /home/aidev/phone-farm-tools/uiagent
 nix develop
 
 # Verify Python path
@@ -1813,18 +1901,23 @@ print(f"Success rate: {nav_stats['success_rate']:.1%}")
 
 ## Additional Resources
 
+- **Server Location**: office-node (192.168.40.254)
+- **SSE Endpoint**: http://192.168.40.254:8765/sse
 - **Project Repository**: `/home/aidev/phone-farm-tools/uiagent`
 - **Signature Definitions**: `signatures/instagram.py`, `signatures/android_system.py`
 - **Navigation Graph**: `navigation/graph.py`
 - **Default Popup Patterns**: `popup_patterns.json`
 - **FastMCP Documentation**: https://github.com/jlowin/fastmcp
+- **Screen Detection Documentation**: `docs/SCREEN-DETECTION.md`
 
 ## Version Information
 
 - **MCP Server Version**: 1.0
+- **Transport**: SSE (HTTP) for remote access
 - **FastMCP Version**: 0.2+
 - **Python Version**: 3.11+
 - **uiautomator2 Version**: 3.0+
+- **Deployment**: office-node (192.168.40.254:8765)
 
 ---
 
