@@ -514,8 +514,7 @@ INSTAGRAM_SIGNATURES: List[ScreenSignature] = [
         screen_id="home_feed",
         description="Main Instagram feed - navigate away for warmup",
         required=[
-            ":id/sticky_header_list",  # Feed list container - always present
-            ":id/feed_tab",  # Home tab in bottom nav
+            "text:Your story",  # Stories tray - ONLY on home feed, primary discriminator
         ],
         forbidden=[
             ":id/action_bar_search_edit_text",
@@ -524,21 +523,22 @@ INSTAGRAM_SIGNATURES: List[ScreenSignature] = [
             ":id/layout_comment_thread_edittext",
         ],
         unique=[
-            ":id/sticky_header_list",  # Feed-specific list (not on explore/profile)
+            "text:Your story",  # Unique to home feed - forbidden on all other screens
+            ":id/main_feed_action_bar",  # Home feed action bar
         ],
         optional=[
-            "text:Your story",
-            ":id/main_feed_action_bar",
+            ":id/sticky_header_list",
             ":id/title_logo",
             ":id/action_bar_inbox_button",
             "content-desc:reels tray container",
-            ":id/feed_preview_keep_watching_button",  # Reel overlay in feed
+            ":id/feed_preview_keep_watching_button",
             ":id/row_feed_button_like",
             ":id/row_feed_button_comment",
             ":id/row_feed_button_share",
             ":id/row_feed_button_save",
             ":id/media_group",
             ":id/refreshable_container",
+            ":id/feed_tab",
         ],
         priority=25,
         recovery_action="click_explore",
